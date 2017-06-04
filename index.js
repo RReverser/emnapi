@@ -198,3 +198,39 @@ export function napi_typeof(env, value, result) {
     HEAPU32[result >> 2] = ValueType[t];
     return Status.Ok;
 }
+
+export function napi_get_value_double(env, value, result) {
+    value = getValue(value);
+    if (typeof value !== 'number') {
+        return Status.NumberExpected;
+    }
+    HEAPF64[result >> 3] = value;
+    return Status.Ok;
+}
+
+export function napi_get_value_int32(env, value, result) {
+    value = getValue(value);
+    if (typeof value !== 'number') {
+        return Status.NumberExpected;
+    }
+    HEAP32[result >> 2] = value;
+    return Status.Ok;
+}
+
+export function napi_get_value_uint32(env, value, result) {
+    value = getValue(value);
+    if (typeof value !== 'number') {
+        return Status.NumberExpected;
+    }
+    HEAPU32[result >> 2] = value;
+    return Status.Ok;
+}
+
+export function napi_get_value_bool(env, value, result) {
+    value = getValue(value);
+    if (typeof value !== 'boolean') {
+        return Status.BooleanExpected;
+    }
+    HEAPU32[result >> 2] = value ? 1 : 0;
+    return Status.Ok;
+}
