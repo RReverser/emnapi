@@ -222,12 +222,7 @@ export function napi_get_value_int32(env, value, result) {
 }
 
 export function napi_get_value_uint32(env, value, result) {
-    value = getValue(value);
-    if (typeof value !== 'number') {
-        return Status.NumberExpected;
-    }
-    HEAPU32[result >> 2] = value;
-    return Status.Ok;
+    return napi_get_value_int32(env, value, result);
 }
 
 export function napi_get_value_bool(env, value, result) {
