@@ -168,6 +168,20 @@ export function napi_create_number(env, value, result) {
     return setValue(result, value);
 }
 
+function wrapCallback(ptr, data) {
+    var func = FUNCTION_TABLE_iii[ptr];
+    return function () {
+        var cbInfo = {
+            this: this,
+            args: Array.prototype.slice.call(arguments),
+            data: data
+        };
+        return withNewScope(function () {
+            return getValue(func(0, createValue(cbInfo)));
+        });
+    };
+}
+
 export function napi_define_properties(env, obj, propCount, props) {
     props >>= 2;
     for (var i = 0; i < propCount; i++) {
@@ -185,7 +199,9 @@ export function napi_define_properties(env, obj, propCount, props) {
         //   void* data;
         // } napi_property_descriptor;
 
-        var name = Pointer_stringify(HEAPU32[props++] || HEAPU32[props++]);
+        var utf8NamePtr = HEAPU32[props++];
+        var namePtr = HEAPU32[props++];
+        var name = Pointer_stringify(utf8NamePtr || namePtr);
         var methodPtr = HEAPU32[props++];
         var getterPtr = HEAPU32[props++];
         var setterPtr = HEAPU32[props++];
@@ -197,15 +213,6 @@ export function napi_define_properties(env, obj, propCount, props) {
             enumerable: !!(attributes & PropertyAttributes.Enumerable),
             configurable: !!(attributes & PropertyAttributes.Configurable)
         };
-
-        function wrapCallback(ptr) {
-            var func = FUNCTION_TABLE_iii[ptr];
-            return function () {
-                return withNewScope(function () {
-                    return getValue(func(0, /* TODO: callback info */ 0))
-                });
-            };
-        }
 
         if (valuePtr || methodPtr) {
             descriptor.writable = !!(attributes & PropertyAttributes.Writable);
@@ -304,5 +311,23 @@ export function napi_get_and_clear_last_exception(env, result) {
 
 export function napi_is_error(env, value, result) {
     HEAPU32[result >> 2] = Object.prototype.toString.call(getValue(value)) === '[object Error]';
+    return Status.Ok;
+}
+
+export function napi_get_cb_info(env, cbinfo, argcPtr, argvPtr, thisArgPtr, dataPtrPtr) {
+    cbinfo = getValue(cbinfo);
+    argcPtr >>= 2;
+    var argc = HEAPU32[argcPtr];
+    var actualArgc = cbinfo.args.length;
+    HEAPU32[argcPtr] = actualArgc;
+    if (actualArgc < argc) {
+        argc = actualArgc;
+    }
+    argvPtr >>= 2;
+    for (var i = 0; i < argc; i++) {
+        HEAPU32[argvPtr + i] = createValue(cbinfo.args[i]);
+    }
+    setValue(thisArgPtr, cbinfo.this);
+    HEAPU32[dataPtrPtr >> 2] = cbinfo.data;
     return Status.Ok;
 }
