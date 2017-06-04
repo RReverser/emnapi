@@ -51,6 +51,7 @@ export function napi_module_register(info) {
         (0, info.registerFunc)(0, createValue(exports), createValue(module), 0);
     });
     modules[info.modname] = module.exports;
+    return Status.Ok;
 }
 
 var modules = {};
@@ -103,6 +104,7 @@ export function napi_escape_handle(env, scope, escapee, result) {
         return Status.InvalidArg;
     }
     HEAPU32[result >> 2] = scopes[scope - 1].push(getValue(escapee)) - 1;
+    return Status.Ok;
 }
 
 function getValue(handle) {
@@ -120,7 +122,7 @@ function setValue(result, value) {
 export function napi_create_string_utf8(env, str, length, result) {
     utf8Decoder || (utf8Decoder = new TextDecoder());
     setValue(result, utf8Decoder.decode(HEAPU8.subarray(str, str + length)));
-    return status.ok;
+    return Status.Ok;
 }
 
 export function napi_define_properties(env, obj, propCount, props) {
@@ -172,4 +174,5 @@ export function napi_define_properties(env, obj, propCount, props) {
 
         Object.defineProperty(getValue(obj), name, descriptor);
     }
+    return Status.Ok;
 }
