@@ -301,3 +301,8 @@ export function napi_is_exception_pending(env, result) {
 export function napi_get_and_clear_last_exception(env, result) {
     return setValue(result, extractPendingException());
 }
+
+export function napi_is_error(env, value, result) {
+    HEAPU32[result >> 2] = Object.prototype.toString.call(getValue(value)) === '[object Error]';
+    return Status.Ok;
+}
