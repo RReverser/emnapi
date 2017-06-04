@@ -47,19 +47,38 @@ export function napi_module_register(info) {
     console.log('Registering ', info);
     var exports = {};
     var module = { exports: exports };
-    (0, info.registerFunc)(0, createValue(exports), createValue(module), 0);
+    withNewScope(function () {
+        (0, info.registerFunc)(0, createValue(exports), createValue(module), 0);
+    });
     modules[info.modname] = module.exports;
 }
 
 var modules = {};
 
-var handles = [];
-var scopes = [handles];
+var handles = null;
+var scopes = [];
 var utf8Encoder;
 var utf8Decoder;
 
+function createScope() {
+    handles = [];
+    return scopes.push(handles) - 1;
+}
+
+function leaveScope() {
+    scopes.pop();
+    handles = scopes.length === 0 ? null : scopes[scopes.length - 1];
+}
+
+function withNewScope(callback) {
+    createScope();
+    var result = callback();
+    leaveScope();
+    return result;
+}
+
 export function napi_open_handle_scope(env, result) {
-    HEAPU32[result >> 2] = scopes.push(handles = []) - 1;
+    HEAPU32[result >> 2] = createScope();
     return Status.Ok;
 }
 
@@ -67,7 +86,7 @@ export function napi_close_handle_scope(env, scope) {
     if (scope !== scopes.length - 1) {
         return Status.InvalidArg;
     }
-    scopes.pop();
+    leaveScope();
     return Status.Ok;
 }
 
@@ -137,7 +156,9 @@ export function napi_define_properties(env, obj, propCount, props) {
         function wrapCallback(ptr) {
             var func = FUNCTION_TABLE_iii[ptr];
             return function () {
-                return getValue(func(0, /* TODO: callback info */ 0));
+                return withNewScope(function () {
+                    return getValue(func(0, /* TODO: callback info */ 0))
+                });
             };
         }
 
