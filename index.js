@@ -68,10 +68,29 @@ export function napi_module_register(info) {
 
 var modules = {};
 
+var pendingException = {
+    exists: false, // because `throw undefined` is technically possible
+    exception: null
+};
 var handles = null;
 var scopes = [];
 var utf8Encoder;
 var utf8Decoder;
+
+function setPendingException(exception) {
+    if (pendingException.exists) return;
+    pendingException.exists = true;
+    pendingException.exception = exception;
+}
+
+function extractPendingException() {
+    var exception = pendingException.exception;
+    if (pendingException.exists) {
+        pendingException.exists = false;
+        pendingException.exception = null;
+    }
+    return exception;
+}
 
 function createScope() {
     handles = [];
@@ -80,7 +99,15 @@ function createScope() {
 
 function leaveScope() {
     scopes.pop();
-    handles = scopes.length === 0 ? null : scopes[scopes.length - 1];
+    if (scopes.length === 0) {
+        // exited topmost native method
+        handles = null;
+        if (pendingException.exists) {
+            throw extractPendingException();
+        }
+    } else {
+        handles = scopes[scopes.length - 1];
+    }
 }
 
 function withNewScope(callback) {
@@ -230,6 +257,47 @@ export function napi_get_value_bool(env, value, result) {
     if (typeof value !== 'boolean') {
         return Status.BooleanExpected;
     }
-    HEAPU32[result >> 2] = value ? 1 : 0;
+    HEAPU32[result >> 2] = value;
     return Status.Ok;
+}
+
+function createError(Ctor, msg) {
+    return new Ctor(Pointer_stringify(msg));
+}
+
+export function napi_create_error(env, msg, result) {
+    return setValue(result, createError(Error, msg));
+}
+
+export function napi_create_type_error(env, msg, result) {
+    return setValue(result, createError(TypeError, msg));
+}
+
+export function napi_create_range_error(env, msg, result) {
+    return setValue(result, createError(RangeError, msg));
+}
+
+export function napi_throw(env, error) {
+    setPendingException(getValue(error));
+}
+
+export function napi_throw_error(env, msg) {
+    setPendingException(createError(Error, msg));
+}
+
+export function napi_throw_type_error(env, msg) {
+    setPendingException(createError(TypeError, msg));
+}
+
+export function napi_throw_range_error(env, msg) {
+    setPendingException(createError(RangeError, msg));
+}
+
+export function napi_is_exception_pending(env, result) {
+    HEAPU32[result >> 2] = pendingException.exists;
+    return Status.Ok;
+}
+
+export function napi_get_and_clear_last_exception(env, result) {
+    return setValue(result, extractPendingException());
 }
