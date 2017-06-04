@@ -1,0 +1,21 @@
+{
+  "name": "emnapi",
+  "version": "1.0.0",
+  "description": "N-API implementation for Emscripten",
+  "main": "index.dist.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "emscripten",
+    "napi"
+  ],
+  "author": "Ingvar Stepanyan <me@rreverser.com> (https://rreverser.com)",
+  "license": "MIT",
+  "devDependencies": {
+    "rollup-emscripten": "^0.1.0"
+  },
+  "dependencies": {
+    "@types/emscripten": "0.0.30"
+  }
+}
