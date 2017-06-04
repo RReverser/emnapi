@@ -22,6 +22,18 @@ var PropertyAttributes = {
     Static: 1 << 10
 };
 
+var ValueType = {
+    'undefined': 0,
+    'null': 1,
+    'boolean': 2,
+    'number': 3,
+    'string': 4,
+    'symbol': 5,
+    'object': 6,
+    'function': 7,
+    'external': 8
+};
+
 function readModule(ptr) {
     // typedef struct {
     //   int nm_version;
@@ -174,5 +186,14 @@ export function napi_define_properties(env, obj, propCount, props) {
 
         Object.defineProperty(getValue(obj), name, descriptor);
     }
+    return Status.Ok;
+}
+
+export function napi_typeof(env, value, result) {
+    var t = typeof value;
+    if (t === 'object' && value === null) {
+        t = 'null';
+    }
+    HEAPU32[result >> 2] = ValueType[t];
     return Status.Ok;
 }
