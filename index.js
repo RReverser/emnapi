@@ -129,12 +129,16 @@ function createValue(value) {
 
 function setValue(result, value) {
     HEAPU32[result >> 2] = createValue(value);
+    return Status.Ok;
 }
 
 export function napi_create_string_utf8(env, str, length, result) {
     utf8Decoder || (utf8Decoder = new TextDecoder());
-    setValue(result, utf8Decoder.decode(HEAPU8.subarray(str, str + length)));
-    return Status.Ok;
+    return setValue(result, utf8Decoder.decode(HEAPU8.subarray(str, str + length)));
+}
+
+export function napi_create_number(env, value, result) {
+    return setValue(result, value);
 }
 
 export function napi_define_properties(env, obj, propCount, props) {
