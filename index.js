@@ -190,6 +190,7 @@ export function napi_define_properties(env, obj, propCount, props) {
 }
 
 export function napi_typeof(env, value, result) {
+    value = getValue(value);
     var t = typeof value;
     if (t === 'object' && value === null) {
         t = 'null';
