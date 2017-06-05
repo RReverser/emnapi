@@ -72,8 +72,7 @@ var pendingException = {
     exists: false, // because `throw undefined` is technically possible
     exception: null
 };
-var handles = null;
-var scopes = [];
+var handles = [];
 var utf8Encoder;
 var utf8Decoder;
 
@@ -93,27 +92,21 @@ function extractPendingException() {
 }
 
 function createScope() {
-    handles = [];
-    return scopes.push(handles) - 1;
+    return handles.length;
 }
 
-function leaveScope() {
-    scopes.pop();
-    if (scopes.length === 0) {
+function leaveScope(scope) {
+    handles.length = scope;
+    if (scope === 0 && pendingException.exists) {
         // exited topmost native method
-        handles = null;
-        if (pendingException.exists) {
-            throw extractPendingException();
-        }
-    } else {
-        handles = scopes[scopes.length - 1];
+        throw extractPendingException();
     }
 }
 
 function withNewScope(callback) {
-    createScope();
+    var scope = createScope();
     var result = callback();
-    leaveScope();
+    leaveScope(scope);
     return result;
 }
 
@@ -123,10 +116,7 @@ export function napi_open_handle_scope(env, result) {
 }
 
 export function napi_close_handle_scope(env, scope) {
-    if (scope !== scopes.length - 1) {
-        return Status.InvalidArg;
-    }
-    leaveScope();
+    leaveScope(scope);
     return Status.Ok;
 }
 
@@ -139,11 +129,7 @@ export function napi_close_escapable_handle_scope(env, scope) {
 }
 
 export function napi_escape_handle(env, scope, escapee, result) {
-    if (scope === 0 || scope !== scopes.length) {
-        return Status.InvalidArg;
-    }
-    HEAPU32[result >> 2] = scopes[scope - 1].push(getValue(escapee)) - 1;
-    return Status.Ok;
+    return Status.GenericFailure;
 }
 
 function getValue(handle) {
