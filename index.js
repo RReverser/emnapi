@@ -68,27 +68,36 @@ export function napi_module_register(info) {
 
 var modules = {};
 
-var pendingException = {
-    exists: false, // because `throw undefined` is technically possible
-    exception: null
-};
+var SENTINEL = {};
+// hack to workaround https://github.com/vtree-rs/rollup-emscripten/issues/3
+export var _napi_SENTINEL__postset = 'if (typeof Symbol !== "undefined") __napi_SENTINEL = Symbol("napi.sentinel");';
+
+var pendingException = null;
+export var _napi_pendingException__deps = ['_napi_SENTINEL'];
+export var _napi_pendingException__postset = '__napi_pendingException = __napi_SENTINEL;';
+
 var handles = [];
+
 var utf8Encoder;
+export var _napi_utf8Encoder__postset = 'utf8Encoder = new TextEncoder();';
+
 var utf8Decoder;
+export var _napi_utf8Decoder__postset = 'utf8Decoder = new TextDecoder();';
 
 function setPendingException(exception) {
-    if (pendingException.exists) return;
-    pendingException.exists = true;
-    pendingException.exception = exception;
+    if (pendingException === SENTINEL) {
+        pendingException = exception;
+    }
 }
 
 function extractPendingException() {
-    var exception = pendingException.exception;
-    if (pendingException.exists) {
-        pendingException.exists = false;
-        pendingException.exception = null;
+    var exception = pendingException;
+    if (exception !== SENTINEL) {
+        pendingException = SENTINEL;
+        return exception;
+    } else {
+        return undefined;
     }
-    return exception;
 }
 
 function createScope() {
@@ -97,7 +106,7 @@ function createScope() {
 
 function leaveScope(scope) {
     handles.length = scope;
-    if (scope === 0 && pendingException.exists) {
+    if (scope === 0 && pendingException !== SENTINEL) {
         // exited topmost native method
         throw extractPendingException();
     }
@@ -121,15 +130,29 @@ export function napi_close_handle_scope(env, scope) {
 }
 
 export function napi_open_escapable_handle_scope(env, result) {
-    return napi_open_handle_scope(env, result);
+    var status = napi_open_handle_scope(env, result);
+    if (status === Status.Ok) {
+        handles.push(SENTINEL);
+    }
+    return status;
 }
 
 export function napi_close_escapable_handle_scope(env, scope) {
+    if (handles[scope] !== SENTINEL) {
+        // a value has escaped, need to keep it
+        scope++;
+    }
     return napi_close_handle_scope(env, scope);
 }
 
 export function napi_escape_handle(env, scope, escapee, result) {
-    return Status.GenericFailure;
+    if (handles[scope] !== SENTINEL) {
+        // something has already escaped
+        return Status.GenericFailure;
+    }
+    handles[scope] = getValue(escapee);
+    HEAPU32[result >> 2] = scope;
+    return Status.Ok;
 }
 
 function getValue(handle) {
@@ -146,7 +169,6 @@ function setValue(result, value) {
 }
 
 export function napi_create_string_utf8(env, str, length, result) {
-    utf8Decoder || (utf8Decoder = new TextDecoder());
     return setValue(result, utf8Decoder.decode(HEAPU8.subarray(str, str + length)));
 }
 
@@ -287,7 +309,7 @@ export function napi_throw_range_error(env, msg) {
 }
 
 export function napi_is_exception_pending(env, result) {
-    HEAPU32[result >> 2] = pendingException.exists;
+    HEAPU32[result >> 2] = pendingException !== SENTINEL;
     return Status.Ok;
 }
 
