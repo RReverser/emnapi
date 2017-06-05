@@ -202,10 +202,10 @@ export function napi_define_properties(env, obj, propCount, props) {
 
         if (valuePtr || methodPtr) {
             descriptor.writable = !!(attributes & PropertyAttributes.Writable);
-            descriptor.value = valuePtr ? getValue(valuePtr) : wrapCallback(methodPtr);
+            descriptor.value = valuePtr ? getValue(valuePtr) : wrapCallback(methodPtr, data);
         } else {
-            descriptor.get = wrapCallback(getterPtr);
-            descriptor.set = wrapCallback(setterPtr);
+            descriptor.get = wrapCallback(getterPtr, data);
+            descriptor.set = wrapCallback(setterPtr, data);
         }
 
         Object.defineProperty(getValue(obj), name, descriptor);
