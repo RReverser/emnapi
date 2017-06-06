@@ -447,33 +447,15 @@ export function napi_strict_equals(env, lhs, rhs, result) {
 }
 
 export function napi_set_property(env, obj, key, value) {
-    if (pendingException !== SENTINEL) {
-        return Status.PendingException;
-    }
-    // safeJS doesn't help here because we don't have result
-    // so it's fine to do some duplication
-    obj = getValue(obj);
-    key = getValue(key);
-    value = getValue(value);
-    try {
-        obj[key] = value;
-        return Status.Ok;
-    } catch (exception) {
-        pendingException = exception;
-        return Status.PendingException;
-    }
+    return napi_set_element(env, obj, getValue(key), value);
 }
 
 export function napi_get_property(env, obj, key, result) {
-    return safeJS(result, true, function (obj, key) {
-        return obj[key];
-    }, obj, key);
+    return napi_get_element(env, obj, getValue(key), result);
 }
 
 export function napi_has_property(env, obj, key, result) {
-    return safeJS(result, false, function (obj, key) {
-        return key in obj;
-    }, obj, key);
+    return napi_has_element(env, obj, getValue(key), result);
 }
 
 export function napi_get_property_names(env, obj, result) {
@@ -494,4 +476,63 @@ export function napi_get_undefined(env, result) {
 
 export function napi_get_global(env, result) {
     return setResult(result, globalHandle);
+}
+
+export function napi_set_named_property(env, obj, name, value) {
+    return napi_set_element(env, obj, UTF8ToString(name), value);
+}
+
+export function napi_get_named_property(env, obj, name, result) {
+    return napi_get_element(env, obj, UTF8ToString(name), result);
+}
+
+export function napi_has_named_property(env, obj, name, result) {
+    return napi_has_element(env, obj, UTF8ToString(name), result);
+}
+
+export function napi_set_element(env, obj, index, value) {
+    if (pendingException !== SENTINEL) {
+        return Status.PendingException;
+    }
+    // safeJS doesn't help here because we don't have result
+    // so it's fine to do some duplication
+    obj = getValue(obj);
+    value = getValue(value);
+    try {
+        obj[index] = value;
+        return Status.Ok;
+    } catch (exception) {
+        pendingException = exception;
+        return Status.PendingException;
+    }
+}
+
+export function napi_get_element(env, obj, index, result) {
+    if (pendingException !== SENTINEL) {
+        return Status.PendingException;
+    }
+    // safeJS doesn't help here because we don't have result
+    // so it's fine to do some duplication
+    obj = getValue(obj);
+    try {
+        return setValue(result, obj[index]);
+    } catch (exception) {
+        pendingException = exception;
+        return Status.PendingException;
+    }
+}
+
+export function napi_has_element(env, obj, index, result) {
+    if (pendingException !== SENTINEL) {
+        return Status.PendingException;
+    }
+    // safeJS doesn't help here because we don't have result
+    // so it's fine to do some duplication
+    obj = getValue(obj);
+    try {
+        return setResult(result, index in obj);
+    } catch (exception) {
+        pendingException = exception;
+        return Status.PendingException;
+    }
 }
