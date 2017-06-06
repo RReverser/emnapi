@@ -1,0 +1,16 @@
+{
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "globals": {
+        "HEAPU8": false,
+        "HEAPU32": false,
+        "HEAPF64": false,
+        "UTF8ToString": false,
+        "FUNCTION_TABLE_iii": false,
+        "FUNCTION_TABLE_viiii": false,
+        "global": false,
+        "self": false
+    }
+}

@@ -13,6 +13,7 @@
   "author": "Ingvar Stepanyan <me@rreverser.com> (https://rreverser.com)",
   "license": "MIT",
   "devDependencies": {
+    "eslint": "^3.19.0",
     "rollup-emscripten": "^0.1.0"
   },
   "dependencies": {

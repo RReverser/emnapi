@@ -46,17 +46,16 @@ function readModule(ptr) {
     // } napi_module;
     ptr >>= 2;
     return {
-        version: HEAP32[ptr++],
+        version: HEAPU32[ptr++],
         flags: HEAPU32[ptr++],
-        filename: Pointer_stringify(HEAPU32[ptr++]),
+        filename: UTF8ToString(HEAPU32[ptr++]),
         registerFunc: FUNCTION_TABLE_viiii[HEAPU32[ptr++]],
-        modname: Pointer_stringify(HEAPU32[ptr++])
+        modname: UTF8ToString(HEAPU32[ptr++])
     };
 }
 
 export function napi_module_register(info) {
     info = readModule(info);
-    console.log('Registering ', info);
     var exports = {};
     var module = { exports: exports };
     withNewScope(function () {
@@ -77,9 +76,6 @@ export var _napi_pendingException__deps = ['_napi_SENTINEL'];
 export var _napi_pendingException__postset = '__napi_pendingException = __napi_SENTINEL;';
 
 var handles = [SENTINEL];
-
-var utf8Encoder;
-export var _napi_utf8Encoder__postset = 'utf8Encoder = new TextEncoder();';
 
 var utf8Decoder;
 export var _napi_utf8Decoder__postset = 'utf8Decoder = new TextDecoder();';
@@ -172,7 +168,10 @@ function setValue(result, value) {
 }
 
 export function napi_create_string_utf8(env, str, length, result) {
-    return setValue(result, utf8Decoder.decode(HEAPU8.subarray(str, str + length)));
+    return setValue(
+        result,
+        length === -1 ? UTF8ToString(str) : utf8Decoder.decode(HEAPU8.subarray(str, str + length))
+    );
 }
 
 export function napi_create_number(env, value, result) {
@@ -212,7 +211,7 @@ export function napi_define_properties(env, obj, propCount, props) {
 
         var namePtr = HEAPU32[props++];
         var nameHandle = HEAPU32[props++];
-        var name = namePtr ? Pointer_stringify(namePtr) : getValue(nameHandle);
+        var name = namePtr ? UTF8ToString(namePtr) : getValue(nameHandle);
         var methodPtr = HEAPU32[props++];
         var getterPtr = HEAPU32[props++];
         var setterPtr = HEAPU32[props++];
@@ -257,17 +256,17 @@ export function napi_get_value_double(env, value, result) {
     return Status.Ok;
 }
 
-export function napi_get_value_int32(env, value, result) {
+export function napi_get_value_uint32(env, value, result) {
     value = getValue(value);
     if (typeof value !== 'number') {
         return Status.NumberExpected;
     }
-    HEAP32[result >> 2] = value;
+    HEAPU32[result >> 2] = value;
     return Status.Ok;
 }
 
-export function napi_get_value_uint32(env, value, result) {
-    return napi_get_value_int32(env, value, result);
+export function napi_get_value_int32(env, value, result) {
+    return napi_get_value_uint32(env, value, result);
 }
 
 export function napi_get_value_bool(env, value, result) {
@@ -280,7 +279,7 @@ export function napi_get_value_bool(env, value, result) {
 }
 
 function createError(Ctor, msg) {
-    return new Ctor(Pointer_stringify(msg));
+    return new Ctor(UTF8ToString(msg));
 }
 
 export function napi_create_error(env, msg, result) {
