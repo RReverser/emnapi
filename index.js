@@ -65,20 +65,25 @@ export function napi_module_register(info) {
     return Status.Ok;
 }
 
-function safeJS(result, callback, value, toValue) {
+function safeJS(result, callback, toValue/*, ...values*/) {
     if (pendingException !== SENTINEL) {
         return Status.PendingException;
     }
+    var resultValue;
+    var inputs = [];
+    for (var i = 3; i < arguments.length; i++) {
+        inputs.push(getValue(arguments[i]));
+    }
     try {
-        value = callback(getValue(value));
+        resultValue = callback.apply(null, inputs);
     } catch (exception) {
         pendingException = exception;
         return Status.PendingException;
     }
     if (toValue) {
-        value = createValue(value);
+        resultValue = createValue(resultValue);
     }
-    return setResult(result, value);
+    return setResult(result, resultValue);
 }
 
 export var modules = {};
@@ -342,11 +347,11 @@ export function napi_get_and_clear_last_exception(env, result) {
 var toString = Object.prototype.toString;
 
 function checkTag(result, value, tag) {
-    return safeJS(result, function (value) {
+    return safeJS(result, false, function (value) {
         // can fail on a revoked Proxy
         // https://tc39.github.io/ecma262/#sec-object.prototype.tostring
         return toString.call(value) === '[object ' + tag + ']';
-    }, value, false);
+    }, value);
 }
 
 export function napi_is_error(env, value, result) {
@@ -383,7 +388,7 @@ export function napi_coerce_to_bool(env, value, result) {
 export function napi_coerce_to_number(env, value, result) {
     // can fail on symbols and objects
     // https://tc39.github.io/ecma262/#sec-tonumber
-    return safeJS(result, Number, value, true);
+    return safeJS(result, true, Number, value);
 }
 
 export function napi_coerce_to_object(env, value, result) {
@@ -395,21 +400,21 @@ export function napi_coerce_to_object(env, value, result) {
 export function napi_coerce_to_string(env, value, result) {
     // can fail on symbols and objects
     // https://tc39.github.io/ecma262/#sec-tostring
-    return safeJS(result, String, value, true);
+    return safeJS(result, true, String, value);
 }
 
 export function napi_instanceof(env, value, Ctor, result) {
-    return safeJS(result, function (value) {
+    return safeJS(result, false, function (value, Ctor) {
         // can fail on non-objects and more
         // https://tc39.github.io/ecma262/#sec-instanceofoperator
-        return value instanceof getValue(Ctor);
-    }, value, false);
+        return value instanceof Ctor;
+    }, value, Ctor);
 }
 
 export function napi_is_array(env, value, result) {
     // can fail on a revoked Proxy
     // https://tc39.github.io/ecma262/#sec-isarray
-    return safeJS(result, Array.isArray, value, false);
+    return safeJS(result, false, Array.isArray, value);
 }
 
 export function napi_is_arraybuffer(env, value, result) {
