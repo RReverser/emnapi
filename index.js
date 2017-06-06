@@ -65,7 +65,7 @@ export function napi_module_register(info) {
     return Status.Ok;
 }
 
-function safeJS(result, callback, toValue/*, ...values*/) {
+function safeJS(result, toValue, callback/*, ...values*/) {
     if (pendingException !== SENTINEL) {
         return Status.PendingException;
     }
