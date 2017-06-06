@@ -84,9 +84,11 @@ var initialScope = handles.length;
 var utf8Decoder = new TextDecoder();
 
 function setPendingException(exception) {
-    if (pendingException === SENTINEL) {
-        pendingException = exception;
+    if (pendingException !== SENTINEL) {
+        return Status.PendingException;
     }
+    pendingException = exception;
+    return Status.Ok;
 }
 
 function extractPendingException() {
@@ -295,19 +297,19 @@ export function napi_create_range_error(env, msg, result) {
 }
 
 export function napi_throw(env, error) {
-    setPendingException(getValue(error));
+    return setPendingException(getValue(error));
 }
 
 export function napi_throw_error(env, msg) {
-    setPendingException(createError(Error, msg));
+    return setPendingException(createError(Error, msg));
 }
 
 export function napi_throw_type_error(env, msg) {
-    setPendingException(createError(TypeError, msg));
+    return setPendingException(createError(TypeError, msg));
 }
 
 export function napi_throw_range_error(env, msg) {
-    setPendingException(createError(RangeError, msg));
+    return setPendingException(createError(RangeError, msg));
 }
 
 export function napi_is_exception_pending(env, result) {
