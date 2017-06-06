@@ -76,7 +76,7 @@ var pendingException = null;
 export var _napi_pendingException__deps = ['_napi_SENTINEL'];
 export var _napi_pendingException__postset = '__napi_pendingException = __napi_SENTINEL;';
 
-var handles = [];
+var handles = [SENTINEL];
 
 var utf8Encoder;
 export var _napi_utf8Encoder__postset = 'utf8Encoder = new TextEncoder();';
@@ -92,12 +92,8 @@ function setPendingException(exception) {
 
 function extractPendingException() {
     var exception = pendingException;
-    if (exception !== SENTINEL) {
-        pendingException = SENTINEL;
-        return exception;
-    } else {
-        return undefined;
-    }
+    pendingException = SENTINEL;
+    return exception;
 }
 
 function createScope() {
@@ -160,7 +156,14 @@ function getValue(handle) {
 }
 
 function createValue(value) {
-    return handles.push(value) - 1;
+    switch (value) {
+        case SENTINEL: {
+            return 0;
+        }
+        default: {
+            return handles.push(value) - 1;
+        }
+    }
 }
 
 function setValue(result, value) {
