@@ -65,6 +65,22 @@ export function napi_module_register(info) {
     return Status.Ok;
 }
 
+function safeJS(result, callback, value, toValue) {
+    if (pendingException !== SENTINEL) {
+        return Status.PendingException;
+    }
+    try {
+        value = callback(getValue(value));
+    } catch (exception) {
+        pendingException = exception;
+        return Status.PendingException;
+    }
+    if (toValue) {
+        value = createValue(value);
+    }
+    return setResult(result, value);
+}
+
 export var modules = {};
 
 var SENTINEL = typeof Symbol !== 'undefined' ? Symbol("napi.sentinel") : { sentinel: true };
@@ -114,7 +130,7 @@ function withNewScope(callback) {
     try {
         return callback();
     } finally {
-    leaveScope(scope);
+        leaveScope(scope);
     }
 }
 
@@ -323,8 +339,18 @@ export function napi_get_and_clear_last_exception(env, result) {
     return setValue(result, extractPendingException());
 }
 
+var toString = Object.prototype.toString;
+
+function checkTag(result, value, tag) {
+    return safeJS(result, function (value) {
+        // can fail on a revoked Proxy
+        // https://tc39.github.io/ecma262/#sec-object.prototype.tostring
+        return toString.call(value) === '[object ' + tag + ']';
+    }, value, false);
+}
+
 export function napi_is_error(env, value, result) {
-    return setResult(result, Object.prototype.toString.call(getValue(value)) === '[object Error]');
+    return checkTag(result, value, 'Error');
 }
 
 export function napi_get_cb_info(env, cbinfo, argcPtr, argvPtr, thisArgPtr, dataPtrPtr) {
@@ -343,4 +369,69 @@ export function napi_get_cb_info(env, cbinfo, argcPtr, argvPtr, thisArgPtr, data
     setValue(thisArgPtr, cbinfo.this);
     HEAPU32[dataPtrPtr >> 2] = cbinfo.data;
     return Status.Ok;
+}
+
+export function napi_coerce_to_bool(env, value, result) {
+    if (pendingException !== SENTINEL) {
+        return Status.PendingException;
+    }
+    // can't fail
+    // https://tc39.github.io/ecma262/#sec-toboolean
+    return setResult(result, !!getValue(value));
+}
+
+export function napi_coerce_to_number(env, value, result) {
+    // can fail on symbols and objects
+    // https://tc39.github.io/ecma262/#sec-tonumber
+    return safeJS(result, Number, value, true);
+}
+
+export function napi_coerce_to_object(env, value, result) {
+    // can't fail when called as regular function
+    // https://tc39.github.io/ecma262/#sec-object-constructor
+    return setValue(result, Object(value));
+}
+
+export function napi_coerce_to_string(env, value, result) {
+    // can fail on symbols and objects
+    // https://tc39.github.io/ecma262/#sec-tostring
+    return safeJS(result, String, value, true);
+}
+
+export function napi_instanceof(env, value, Ctor, result) {
+    return safeJS(result, function (value) {
+        // can fail on non-objects and more
+        // https://tc39.github.io/ecma262/#sec-instanceofoperator
+        return value instanceof getValue(Ctor);
+    }, value, false);
+}
+
+export function napi_is_array(env, value, result) {
+    // can fail on a revoked Proxy
+    // https://tc39.github.io/ecma262/#sec-isarray
+    return safeJS(result, Array.isArray, value, false);
+}
+
+export function napi_is_arraybuffer(env, value, result) {
+    return checkTag(result, value, 'ArrayBuffer');
+}
+
+export function napi_is_typedarray(env, value, result) {
+    if (pendingException !== SENTINEL) {
+        return Status.PendingException;
+    }
+    // can't fail, only checks if an internal slot is present
+    // https://tc39.github.io/ecma262/#sec-arraybuffer.isview
+    return setResult(result, ArrayBuffer.isView(getValue(value)));
+}
+
+export function napi_strict_equals(env, lhs, rhs, result) {
+    if (pendingException !== SENTINEL) {
+        return Status.PendingException;
+    }
+    lhs = getValue(lhs);
+    rhs = getValue(rhs);
+    // can't fail
+    // https://tc39.github.io/ecma262/#sec-strict-equality-comparison
+    return setResult(result, lhs === rhs);
 }
