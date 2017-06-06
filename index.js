@@ -97,8 +97,14 @@ var handles = [
     undefined,
     null,
     false,
-    true
+    true,
+    typeof global !== 'undefined' ? global : self
 ];
+
+var undefinedHandle = 1;
+var nullHandle = 2;
+var boolHandle = 4;
+var globalHandle = 5;
 
 var nativeDepth = 0;
 
@@ -472,4 +478,20 @@ export function napi_has_property(env, obj, key, result) {
 
 export function napi_get_property_names(env, obj, result) {
     return safeJS(result, true, Object.keys, result);
+}
+
+export function napi_get_boolean(env, value, result) {
+    return setResult(result, boolHandle + value);
+}
+
+export function napi_get_null(env, result) {
+    return setResult(result, nullHandle);
+}
+
+export function napi_get_undefined(env, result) {
+    return setResult(result, undefinedHandle);
+}
+
+export function napi_get_global(env, result) {
+    return setResult(result, globalHandle);
 }
