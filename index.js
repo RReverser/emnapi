@@ -210,9 +210,9 @@ export function napi_define_properties(env, obj, propCount, props) {
         //   void* data;
         // } napi_property_descriptor;
 
-        var utf8NamePtr = HEAPU32[props++];
         var namePtr = HEAPU32[props++];
-        var name = Pointer_stringify(utf8NamePtr || namePtr);
+        var nameHandle = HEAPU32[props++];
+        var name = namePtr ? Pointer_stringify(namePtr) : getValue(nameHandle);
         var methodPtr = HEAPU32[props++];
         var getterPtr = HEAPU32[props++];
         var setterPtr = HEAPU32[props++];
