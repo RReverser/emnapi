@@ -111,9 +111,11 @@ function leaveScope(scope) {
 
 function withNewScope(callback) {
     var scope = createScope();
-    var result = callback();
+    try {
+        return callback();
+    } finally {
     leaveScope(scope);
-    return result;
+    }
 }
 
 export function napi_open_handle_scope(env, result) {
