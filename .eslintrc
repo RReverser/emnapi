@@ -11,6 +11,8 @@
         "FUNCTION_TABLE_iii": false,
         "FUNCTION_TABLE_viiii": false,
         "global": false,
-        "self": false
+        "self": false,
+        "Symbol": false,
+        "TextDecoder": false
     }
 }
