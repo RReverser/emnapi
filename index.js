@@ -165,7 +165,11 @@ function createValue(value) {
 }
 
 function setValue(result, value) {
-    HEAPU32[result >> 2] = createValue(value);
+    return setResult(result, createValue(value));
+}
+
+function setResult(result, value) {
+    HEAPU32[result >> 2] = value;
     return Status.Ok;
 }
 
@@ -245,8 +249,7 @@ export function napi_typeof(env, value, result) {
     if (t === 'object' && value === null) {
         t = 'null';
     }
-    HEAPU32[result >> 2] = ValueType[t];
-    return Status.Ok;
+    return setResult(result, ValueType[t]);
 }
 
 export function napi_get_value_double(env, value, result) {
@@ -263,8 +266,7 @@ export function napi_get_value_uint32(env, value, result) {
     if (typeof value !== 'number') {
         return Status.NumberExpected;
     }
-    HEAPU32[result >> 2] = value;
-    return Status.Ok;
+    return setResult(result, value);
 }
 
 export function napi_get_value_int32(env, value, result) {
@@ -276,8 +278,7 @@ export function napi_get_value_bool(env, value, result) {
     if (typeof value !== 'boolean') {
         return Status.BooleanExpected;
     }
-    HEAPU32[result >> 2] = value;
-    return Status.Ok;
+    return setResult(result, value);
 }
 
 function createError(Ctor, msg) {
@@ -313,8 +314,7 @@ export function napi_throw_range_error(env, msg) {
 }
 
 export function napi_is_exception_pending(env, result) {
-    HEAPU32[result >> 2] = pendingException !== SENTINEL;
-    return Status.Ok;
+    return setResult(result, pendingException !== SENTINEL);
 }
 
 export function napi_get_and_clear_last_exception(env, result) {
@@ -322,8 +322,7 @@ export function napi_get_and_clear_last_exception(env, result) {
 }
 
 export function napi_is_error(env, value, result) {
-    HEAPU32[result >> 2] = Object.prototype.toString.call(getValue(value)) === '[object Error]';
-    return Status.Ok;
+    return setResult(result, Object.prototype.toString.call(getValue(value)) === '[object Error]');
 }
 
 export function napi_get_cb_info(env, cbinfo, argcPtr, argvPtr, thisArgPtr, dataPtrPtr) {
