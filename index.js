@@ -65,21 +65,16 @@ export function napi_module_register(info) {
     return Status.Ok;
 }
 
-var modules = {};
+export var modules = {};
 
-var SENTINEL = {};
-// hack to workaround https://github.com/vtree-rs/rollup-emscripten/issues/3
-export var _napi_SENTINEL__postset = 'if (typeof Symbol !== "undefined") __napi_SENTINEL = Symbol("napi.sentinel");';
+var SENTINEL = typeof Symbol !== 'undefined' ? Symbol("napi.sentinel") : { sentinel: true };
 
-var pendingException = null;
-export var _napi_pendingException__deps = ['_napi_SENTINEL'];
-export var _napi_pendingException__postset = '__napi_pendingException = __napi_SENTINEL;';
+var pendingException = SENTINEL;
 
 var handles = [SENTINEL];
 var initialScope = handles.length;
 
-var utf8Decoder;
-export var _napi_utf8Decoder__postset = 'utf8Decoder = new TextDecoder();';
+var utf8Decoder = new TextDecoder();
 
 function setPendingException(exception) {
     if (pendingException === SENTINEL) {
