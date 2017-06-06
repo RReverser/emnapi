@@ -4,7 +4,9 @@
   "description": "N-API implementation for Emscripten",
   "main": "index.dist.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint src",
+    "prepublish": "node build && npm test",
+    "test": "npm run lint"
   },
   "keywords": [
     "emscripten",
@@ -13,10 +15,8 @@
   "author": "Ingvar Stepanyan <me@rreverser.com> (https://rreverser.com)",
   "license": "MIT",
   "devDependencies": {
+    "@types/emscripten": "0.0.30",
     "eslint": "^3.19.0",
     "rollup-emscripten": "^0.1.0"
-  },
-  "dependencies": {
-    "@types/emscripten": "0.0.30"
   }
 }
