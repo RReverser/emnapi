@@ -100,7 +100,7 @@ var handles = [
     true
 ];
 
-var initialScope = handles.length;
+var nativeDepth = 0;
 
 var utf8Decoder = new TextDecoder();
 
@@ -119,12 +119,13 @@ function extractPendingException() {
 }
 
 function createScope() {
+    nativeDepth++;
     return handles.length;
 }
 
 function leaveScope(scope) {
     handles.length = scope;
-    if (scope === initialScope && pendingException !== SENTINEL) {
+    if (--nativeDepth === 0 && pendingException !== SENTINEL) {
         // exited topmost native method
         throw extractPendingException();
     }
@@ -132,11 +133,9 @@ function leaveScope(scope) {
 
 function withNewScope(callback) {
     var scope = createScope();
-    try {
-        return callback();
-    } finally {
-        leaveScope(scope);
-    }
+    var result = callback();
+    leaveScope(scope);
+    return result;
 }
 
 export function napi_open_handle_scope(env, result) {
