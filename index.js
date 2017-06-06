@@ -76,6 +76,7 @@ export var _napi_pendingException__deps = ['_napi_SENTINEL'];
 export var _napi_pendingException__postset = '__napi_pendingException = __napi_SENTINEL;';
 
 var handles = [SENTINEL];
+var initialScope = handles.length;
 
 var utf8Decoder;
 export var _napi_utf8Decoder__postset = 'utf8Decoder = new TextDecoder();';
@@ -98,7 +99,7 @@ function createScope() {
 
 function leaveScope(scope) {
     handles.length = scope;
-    if (scope === 0 && pendingException !== SENTINEL) {
+    if (scope === initialScope && pendingException !== SENTINEL) {
         // exited topmost native method
         throw extractPendingException();
     }
