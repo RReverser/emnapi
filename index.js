@@ -71,7 +71,14 @@ var SENTINEL = typeof Symbol !== 'undefined' ? Symbol("napi.sentinel") : { senti
 
 var pendingException = SENTINEL;
 
-var handles = [SENTINEL];
+var handles = [
+    SENTINEL,
+    undefined,
+    null,
+    false,
+    true
+];
+
 var initialScope = handles.length;
 
 var utf8Decoder = new TextDecoder();
@@ -148,14 +155,11 @@ function getValue(handle) {
 }
 
 function createValue(value) {
-    switch (value) {
-        case SENTINEL: {
-            return 0;
-        }
-        default: {
-            return handles.push(value) - 1;
-        }
+    var index = handles.indexOf(value);
+    if (index === -1) {
+        index = handles.push(value) - 1;
     }
+    return index;
 }
 
 function setValue(result, value) {
