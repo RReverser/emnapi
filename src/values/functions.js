@@ -1,4 +1,4 @@
-import { Status, handles, createValue, setValue } from '../utils';
+import { Status, handles, createValue, setValue, wrapCallback } from '../utils';
 
 export function napi_get_cb_info(
 	env,
@@ -23,4 +23,15 @@ export function napi_get_cb_info(
 	setValue(thisArgPtr, cbinfo.this);
 	HEAPU32[dataPtrPtr >> 2] = cbinfo.data;
 	return Status.Ok();
+}
+
+const canSetName = Object.getOwnPropertyDescriptor(Function.prototype, 'name')
+	.configurable;
+
+export function napi_create_function(env, name, cb, data, result) {
+	var func = wrapCallback(cb, data);
+	if (canSetName) {
+		Object.defineProperty(func, 'name', { value: UTF8ToString(name) });
+	}
+	return setValue(result, func);
 }
