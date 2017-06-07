@@ -9,6 +9,7 @@ const readFile = promisify(fs.readFile);
 const lstat = promisify(fs.lstat);
 const exec = promisify(require('child_process').exec);
 const mkdirp = promisify(require('mkdirp'));
+const PQueue = require('p-queue');
 
 const emccParams = [
     `--js-library ${require.resolve('../index.dist.js')}`,
@@ -28,6 +29,7 @@ let finishedCount = 0;
 
 (async () => {
     let dirs = await readDir('.');
+    let pqueue = new PQueue({ concurrency: 4 });
 
     await Promise.all(dirs.map(async dir => {
         if (dir.startsWith('.')) return;
@@ -52,11 +54,15 @@ let finishedCount = 0;
             let shortCmd = `emcc ${sources.join(' ')} -o ${dest}`;
             let cmd = `${shortCmd} ${emccParams}`;
             console.log(`[#${myIndex}] Running: ${shortCmd}`);
-            let { stderr } = await exec(cmd);
-            console.log(`[#${myIndex}] [${++finishedCount}/${totalCount}] Done: ${shortCmd}`);
-            console.warn(stderr);
+            pqueue.add(async () => {
+                let { stderr } = await exec(cmd);
+                console.log(`[#${myIndex}] [${++finishedCount}/${totalCount}] Done: ${shortCmd}`);
+                console.warn(stderr);
+            });
         }));
     }));
+
+    await pqueue.onEmpty;
 })().catch(err => {
     console.error(err);
     process.exit(1);
