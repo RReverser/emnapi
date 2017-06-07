@@ -20,15 +20,12 @@ function readModule(ptr) {
 	};
 }
 
-export var modules = {};
-
 export function napi_module_register(info) {
 	info = readModule(info);
-	var exports = {};
-	var module = { exports: exports };
+	var mod = typeof module !== 'undefined' ? module : { exports: {} };
 	withNewScope(function() {
-		(0, info.registerFunc)(0, createValue(exports), createValue(module), 0);
+		(0, info.registerFunc)(0, createValue(mod.exports), createValue(mod), 0);
 	});
-	modules[info.modname] = module.exports;
+	Module['napi'] = mod.exports;
 	return Status.Ok;
 }
