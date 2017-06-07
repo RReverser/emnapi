@@ -13,8 +13,14 @@ const mkdirp = promisify(require('mkdirp'));
 const emccParams = [
     `--js-library ${require.resolve('../index.dist.js')}`,
     `-I ${__dirname}`,
+    `-O2`,
+    `--memory-init-file 0`,
+    `-g4`,
     `-s EXPORT_FUNCTION_TABLES=1`,
     `-s DEMANGLE_SUPPORT=1`,
+    `-s ASSERTIONS=2`,
+    `-s SAFE_HEAP=1`,
+    `-s ALIASING_FUNCTION_POINTERS=0`,
 ].join(' ');
 
 let totalCount = 0;
@@ -51,4 +57,7 @@ let finishedCount = 0;
             console.warn(stderr);
         }));
     }));
-})();
+})().catch(err => {
+    console.error(err);
+    process.exit(1);
+});

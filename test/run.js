@@ -8,6 +8,8 @@ const fs = require('fs');
 const readDir = promisify(fs.readdir);
 const lstat = promisify(fs.lstat);
 
+require('source-map-support').install();
+
 (async () => {
     let dirs = await readDir('.');
 
@@ -30,4 +32,7 @@ const lstat = promisify(fs.lstat);
             t.end();
         });
     }
-})();
+})().catch(err => {
+    console.error(err);
+    process.exit(1);
+});
