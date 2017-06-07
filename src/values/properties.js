@@ -6,7 +6,7 @@ import {
 	safeJS,
 	wrapCallback,
 	hasPendingException,
-	setPendingException,
+	caughtException,
 } from '../utils';
 
 export function napi_set_property(env, obj, key, value) {
@@ -49,8 +49,7 @@ export function napi_set_element(env, obj, index, value) {
 		obj[index] = value;
 		return Status.Ok;
 	} catch (exception) {
-		setPendingException(exception);
-		return Status.PendingException;
+		return caughtException(exception);
 	}
 }
 
@@ -64,8 +63,7 @@ export function napi_get_element(env, obj, index, result) {
 	try {
 		return setValue(result, obj[index]);
 	} catch (exception) {
-		setPendingException(exception);
-		return Status.PendingException;
+		return caughtException(exception);
 	}
 }
 
@@ -79,8 +77,7 @@ export function napi_has_element(env, obj, index, result) {
 	try {
 		return setResult(result, index in obj);
 	} catch (exception) {
-		setPendingException(exception);
-		return Status.PendingException;
+		return caughtException(exception);
 	}
 }
 
@@ -142,8 +139,7 @@ export function napi_define_properties(env, obj, propCount, props) {
 		try {
 			Object.defineProperty(obj, name, descriptor);
 		} catch (exception) {
-			setPendingException(exception);
-			return Status.PendingException;
+			return caughtException(exception);
 		}
 	}
 	return Status.Ok;

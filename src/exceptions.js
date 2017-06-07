@@ -1,7 +1,8 @@
 import {
+	Status,
+	caughtException,
 	extractPendingException,
 	hasPendingException,
-	setPendingException,
 	setValue,
 	setResult,
 	handles,
@@ -9,6 +10,11 @@ import {
 
 function createError(Ctor, msg) {
 	return new Ctor(UTF8ToString(msg));
+}
+
+function setPendingException(exception) {
+	caughtException(exception);
+	return Status.Ok;
 }
 
 export function napi_create_error(env, msg, result) {

@@ -23,12 +23,9 @@ export function hasPendingException() {
 	return pendingException !== SENTINEL;
 }
 
-export function setPendingException(exception) {
-	if (hasPendingException()) {
-		return Status.PendingException;
-	}
+export function caughtException(exception) {
 	pendingException = exception;
-	return Status.Ok;
+	return Status.PendingException;
 }
 
 export function extractPendingException() {
@@ -102,8 +99,7 @@ export function safeJS(result, toValue, callback /*, ...values*/) {
 	try {
 		resultValue = callback.apply(null, inputs);
 	} catch (exception) {
-		setPendingException(exception);
-		return Status.PendingException;
+		return caughtException(exception);
 	}
 	if (toValue) {
 		resultValue = createValue(resultValue);
