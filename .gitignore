@@ -58,3 +58,5 @@ typings/
 .env
 
 index.dist.js
+
+/test/addons-napi

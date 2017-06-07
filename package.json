@@ -5,8 +5,11 @@
   "main": "index.dist.js",
   "scripts": {
     "lint": "eslint src",
-    "prepublish": "node build && npm test",
-    "test": "npm run lint"
+    "fetch-tests": "svn export https://github.com/nodejs/node/trunk/test/addons-napi test/addons-napi --force",
+    "build": "node build && node test/build",
+    "pretest": "npm run lint && npm run build",
+    "test": "tap test/run.js",
+    "prepublish": "npm test"
   },
   "keywords": [
     "emscripten",
@@ -17,6 +20,8 @@
   "devDependencies": {
     "@types/emscripten": "0.0.30",
     "eslint": "^3.19.0",
-    "rollup-emscripten": "^0.1.0"
+    "mkdirp": "^0.5.1",
+    "rollup-emscripten": "^0.1.0",
+    "tap": "^10.3.3"
   }
 }
