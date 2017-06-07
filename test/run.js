@@ -28,7 +28,16 @@ require('source-map-support').install();
 
     for (let test of tests) {
         tap.test(test, t => {
-            require(`./addons-napi/${test}`);
+            try {
+                require(`./addons-napi/${test}`);
+            } catch (e) {
+                let err = e;
+                if (typeof err === 'string') {
+                    err = new Error();
+                    err.stack = e;
+                }
+                throw err;
+            }
             t.end();
         });
     }
