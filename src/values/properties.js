@@ -39,7 +39,7 @@ export function napi_has_named_property(env, obj, name, result) {
 
 export function napi_set_element(env, obj, index, value) {
 	if (hasPendingException()) {
-		return Status.PendingException;
+		return Status.PendingException();
 	}
 	// safeJS doesn't help here because we don't have result
 	// so it's fine to do some duplication
@@ -47,7 +47,7 @@ export function napi_set_element(env, obj, index, value) {
 	value = handles[value];
 	try {
 		obj[index] = value;
-		return Status.Ok;
+		return Status.Ok();
 	} catch (exception) {
 		return caughtException(exception);
 	}
@@ -55,7 +55,7 @@ export function napi_set_element(env, obj, index, value) {
 
 export function napi_get_element(env, obj, index, result) {
 	if (hasPendingException()) {
-		return Status.PendingException;
+		return Status.PendingException();
 	}
 	// safeJS doesn't help here because we don't have result
 	// so it's fine to do some duplication
@@ -69,7 +69,7 @@ export function napi_get_element(env, obj, index, result) {
 
 export function napi_has_element(env, obj, index, result) {
 	if (hasPendingException()) {
-		return Status.PendingException;
+		return Status.PendingException();
 	}
 	// safeJS doesn't help here because we don't have result
 	// so it's fine to do some duplication
@@ -92,7 +92,7 @@ var PropertyAttributes = {
 
 export function napi_define_properties(env, obj, propCount, props) {
 	if (hasPendingException()) {
-		return Status.PendingException;
+		return Status.PendingException();
 	}
 	props >>= 2;
 	obj = handles[obj];
@@ -142,5 +142,5 @@ export function napi_define_properties(env, obj, propCount, props) {
 			return caughtException(exception);
 		}
 	}
-	return Status.Ok;
+	return Status.Ok();
 }

@@ -9,7 +9,7 @@ import {
 
 export function napi_coerce_to_bool(env, value, result) {
 	if (hasPendingException()) {
-		return Status.PendingException;
+		return Status.PendingException();
 	}
 	// can't fail
 	// https://tc39.github.io/ecma262/#sec-toboolean

@@ -51,7 +51,7 @@ export function napi_is_arraybuffer(env, value, result) {
 
 export function napi_is_typedarray(env, value, result) {
 	if (hasPendingException()) {
-		return Status.PendingException;
+		return Status.PendingException();
 	}
 	// can't fail, only checks if an internal slot is present
 	// https://tc39.github.io/ecma262/#sec-arraybuffer.isview
@@ -81,7 +81,7 @@ export function napi_typeof(env, value, result) {
 
 export function napi_strict_equals(env, lhs, rhs, result) {
 	if (hasPendingException()) {
-		return Status.PendingException;
+		return Status.PendingException();
 	}
 	// can't fail
 	// https://tc39.github.io/ecma262/#sec-strict-equality-comparison

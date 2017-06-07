@@ -27,16 +27,16 @@ export function napi_get_global(env, result) {
 export function napi_get_value_double(env, value, result) {
 	value = handles[value];
 	if (typeof value !== 'number') {
-		return Status.NumberExpected;
+		return Status.NumberExpected();
 	}
 	HEAPF64[result >> 3] = value;
-	return Status.Ok;
+	return Status.Ok();
 }
 
 export function napi_get_value_uint32(env, value, result) {
 	value = handles[value];
 	if (typeof value !== 'number') {
-		return Status.NumberExpected;
+		return Status.NumberExpected();
 	}
 	return setResult(result, value);
 }
@@ -48,7 +48,7 @@ export function napi_get_value_int32(env, value, result) {
 export function napi_get_value_bool(env, value, result) {
 	value = handles[value];
 	if (typeof value !== 'boolean') {
-		return Status.BooleanExpected;
+		return Status.BooleanExpected();
 	}
 	return setResult(result, value);
 }

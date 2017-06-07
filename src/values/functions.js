@@ -22,5 +22,5 @@ export function napi_get_cb_info(
 	}
 	setValue(thisArgPtr, cbinfo.this);
 	HEAPU32[dataPtrPtr >> 2] = cbinfo.data;
-	return Status.Ok;
+	return Status.Ok();
 }

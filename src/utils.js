@@ -1,17 +1,29 @@
-export var Status = {
-	Ok: 0,
-	InvalidArg: 1,
-	ObjectExpected: 2,
-	StringExpected: 3,
-	NameExpected: 4,
-	FunctionExpected: 5,
-	NumberExpected: 6,
-	BooleanExpected: 7,
-	ArrayExpected: 8,
-	GenericFailure: 9,
-	PendingException: 10,
-	Cancelled: 11,
-};
+var StatusMsgs = [
+	'Ok',
+	'Invalid argument',
+	'Object expected',
+	'String expected',
+	'Name expected',
+	'Function expected',
+	'Number expected',
+	'Boolean expected',
+	'Array expected',
+	'Generic failure',
+	'Pending exception',
+	'Cancelled',
+];
+
+export var lastError = 0;
+
+export var Status = StatusMsgs.reduce(function(result, key, i) {
+	key = key.replace(/ ([a-z])/, function(_, s) {
+		return s.toUpperCase();
+	});
+	result[key] = function() {
+		return (lastError = i);
+	};
+	return result;
+}, {});
 
 export var SENTINEL = typeof Symbol !== 'undefined'
 	? Symbol('napi.sentinel')
@@ -25,7 +37,7 @@ export function hasPendingException() {
 
 export function caughtException(exception) {
 	pendingException = exception;
-	return Status.PendingException;
+	return Status.PendingException();
 }
 
 export function extractPendingException() {
@@ -80,7 +92,7 @@ export function createValue(value) {
 
 export function setResult(result, value) {
 	HEAPU32[result >> 2] = value;
-	return Status.Ok;
+	return Status.Ok();
 }
 
 export function setValue(result, value) {
@@ -89,7 +101,7 @@ export function setValue(result, value) {
 
 export function safeJS(result, toValue, callback /*, ...values*/) {
 	if (hasPendingException()) {
-		return Status.PendingException;
+		return Status.PendingException();
 	}
 	var resultValue;
 	var inputs = [];

@@ -27,5 +27,5 @@ export function napi_module_register(info) {
 		(0, info.registerFunc)(0, createValue(mod.exports), createValue(mod), 0);
 	});
 	Module['napi'] = mod.exports;
-	return Status.Ok;
+	return Status.Ok();
 }

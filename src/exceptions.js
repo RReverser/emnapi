@@ -14,7 +14,7 @@ function createError(Ctor, msg) {
 
 function setPendingException(exception) {
 	caughtException(exception);
-	return Status.Ok;
+	return Status.Ok();
 }
 
 export function napi_create_error(env, msg, result) {
