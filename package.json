@@ -20,6 +20,7 @@
   "devDependencies": {
     "@types/emscripten": "0.0.30",
     "eslint": "^3.19.0",
+    "eslint-plugin-import": "^2.3.0",
     "mkdirp": "^0.5.1",
     "p-queue": "^1.0.0",
     "rollup-emscripten": "^0.1.0",
