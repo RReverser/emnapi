@@ -34,7 +34,7 @@ require('source-map-support').install();
                 let err = e;
                 if (typeof err === 'string') {
                     err = new Error();
-                    err.stack = e;
+                    err.stack = e.replace(/at[^]*abort.*$/m, '');
                 }
                 throw err;
             }
