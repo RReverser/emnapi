@@ -9,7 +9,15 @@
     "build": "node build && node test/build",
     "pretest": "npm run lint",
     "test": "tap test/run.js",
-    "prepublish": "npm test"
+    "prepublish": "npm test",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write --use-tabs --single-quote --trailing-comma es5",
+      "git add"
+    ]
   },
   "keywords": [
     "emscripten",
@@ -21,8 +29,11 @@
     "@types/emscripten": "0.0.30",
     "eslint": "^3.19.0",
     "eslint-plugin-import": "^2.3.0",
+    "husky": "^0.13.4",
+    "lint-staged": "^3.6.0",
     "mkdirp": "^0.5.1",
     "p-queue": "^1.0.0",
+    "prettier": "^1.4.4",
     "rollup-emscripten": "^0.1.0",
     "source-map-support": "^0.4.15",
     "tap": "^10.3.3"
