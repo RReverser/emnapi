@@ -1,24 +1,21 @@
-var StatusMsgs = [
-	'Ok',
-	'Invalid argument',
-	'Object expected',
-	'String expected',
-	'Name expected',
-	'Function expected',
-	'Number expected',
-	'Boolean expected',
-	'Array expected',
-	'Generic failure',
-	'Pending exception',
-	'Cancelled',
-];
+var StatusMsgs = {
+	Ok: '',
+	InvalidArgument: 'Invalid pointer passed as argument',
+	ObjectExpected: 'An object was expected',
+	StringExpected: 'A string was expected',
+	NameExpected: 'A string or symbol was expected',
+	FunctionExpected: 'A function was expected',
+	NumberExpected: 'A number was expected',
+	BooleanExpected: 'A boolean was expected',
+	ArrayExpected: 'An array was expected',
+	GenericFailure: 'Unknown failure',
+	PendingException: 'An exception is pending',
+	Cancelled: 'The async work item was cancelled',
+};
 
 export var lastError = 0;
 
-export var Status = StatusMsgs.reduce(function(result, key, i) {
-	key = key.replace(/ ([a-z])/, function(_, s) {
-		return s.toUpperCase();
-	});
+export var Status = Object.keys(StatusMsgs).reduce(function(result, key, i) {
 	result[key] = function() {
 		return (lastError = i);
 	};
@@ -33,11 +30,14 @@ typedef struct {
   napi_status error_code;
 } napi_extended_error_info;
 */
-export var ExtendedErrorInfo = StatusMsgs.map(function(msg, i) {
+export var ExtendedErrorInfo = Object.keys(StatusMsgs).map(function(key, i) {
 	/* eslint-disable no-undef */
 	// allocate space
 	var ptr = allocate(16, 'i8', ALLOC_STATIC);
-	HEAPU32[ptr >> 2] = allocate(intArrayFromString(msg), 'i8', ALLOC_STATIC);
+	if (i > 0) {
+		var msg = StatusMsgs[key];
+		HEAPU32[ptr >> 2] = allocate(intArrayFromString(msg), 'i8', ALLOC_STATIC);
+	}
 	HEAPU32[(ptr >> 2) + 3] = i;
 	return ptr;
 });
