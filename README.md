@@ -49,7 +49,7 @@ Currently implemented methods (not counting bugs):
  - [x] napi_is_array
  - [ ] napi_get_array_length
  - [x] napi_strict_equals
- - [ ] napi_call_function
+ - [x] napi_call_function
  - [ ] napi_new_instance
  - [x] napi_instanceof
  - [ ] napi_make_callback
@@ -94,4 +94,4 @@ Currently implemented methods (not counting bugs):
  - [ ] napi_queue_async_work
  - [ ] napi_cancel_async_work
  - [ ] napi_get_version
- 
+

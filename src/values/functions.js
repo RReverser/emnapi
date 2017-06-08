@@ -1,4 +1,12 @@
-import { Status, handles, createValue, setValue, wrapCallback } from '../utils';
+import {
+	Status,
+	handles,
+	createValue,
+	setValue,
+	wrapCallback,
+	hasPendingException,
+	caughtException,
+} from '../utils';
 
 export function napi_get_cb_info(
 	env,
@@ -34,4 +42,22 @@ export function napi_create_function(env, name, cb, data, result) {
 		Object.defineProperty(func, 'name', { value: UTF8ToString(name) });
 	}
 	return setValue(result, func);
+}
+
+export function napi_call_function(env, recv, func, argc, argv, result) {
+	if (hasPendingException()) {
+		return Status.PendingException();
+	}
+	recv = handles[recv];
+	func = handles[func];
+	argv >>= 2;
+	var args = new Array(argc);
+	for (var i = 0; i < argc; i++) {
+		args[i] = handles[HEAPU32[argv + i]];
+	}
+	try {
+		return setValue(result, func.apply(recv, args));
+	} catch (exception) {
+		return caughtException(exception);
+	}
 }
