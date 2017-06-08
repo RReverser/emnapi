@@ -1,4 +1,4 @@
-import { setValue } from '../utils';
+import { setValue, handles } from '../utils';
 
 export function napi_create_string_utf8(env, str, length, result) {
 	return setValue(
@@ -24,5 +24,6 @@ export function napi_create_array_with_length(env, length, result) {
 }
 
 export function napi_create_symbol(env, description, result) {
-	return setValue(result, Symbol(UTF8ToString(description)));
+	description = description ? handles[description] : '';
+	return setValue(result, Symbol(description));
 }
