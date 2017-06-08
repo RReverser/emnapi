@@ -6,6 +6,8 @@ import {
 	setValue,
 	setResult,
 	handles,
+	ExtendedErrorInfo,
+	lastError,
 } from './utils';
 
 function createError(Ctor, msg) {
@@ -51,4 +53,8 @@ export function napi_is_exception_pending(env, result) {
 
 export function napi_get_and_clear_last_exception(env, result) {
 	return setValue(result, extractPendingException());
+}
+
+export function napi_get_last_error_info(env, result) {
+	return setResult(result, ExtendedErrorInfo[lastError]);
 }

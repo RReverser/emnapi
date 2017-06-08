@@ -25,6 +25,23 @@ export var Status = StatusMsgs.reduce(function(result, key, i) {
 	return result;
 }, {});
 
+/*
+typedef struct {
+  const char* error_message;
+  void* engine_reserved;
+  uint32_t engine_error_code;
+  napi_status error_code;
+} napi_extended_error_info;
+*/
+export var ExtendedErrorInfo = StatusMsgs.map(function(msg, i) {
+	/* eslint-disable no-undef */
+	// allocate space
+	var ptr = allocate(16, 'i8', ALLOC_STATIC);
+	HEAPU32[ptr >> 2] = allocate(intArrayFromString(msg), 'i8', ALLOC_STATIC);
+	HEAPU32[(ptr >> 2) + 3] = i;
+	return ptr;
+});
+
 export var SENTINEL = typeof Symbol !== 'undefined'
 	? Symbol('napi.sentinel')
 	: { sentinel: true };
