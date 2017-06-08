@@ -76,7 +76,7 @@ export var handles = [
 
 export var undefinedHandle = 1;
 export var nullHandle = 2;
-export var boolHandle = 4;
+export var boolHandle = 3;
 export var globalHandle = 5;
 
 export function createScope() {
