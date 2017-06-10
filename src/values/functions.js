@@ -6,6 +6,7 @@ import {
 	wrapCallback,
 	hasPendingException,
 	caughtException,
+	undefinedHandle,
 } from '../utils';
 
 export function napi_get_cb_info(
@@ -21,12 +22,16 @@ export function napi_get_cb_info(
 	var argc = HEAPU32[argcPtr];
 	var actualArgc = cbinfo.args.length;
 	HEAPU32[argcPtr] = actualArgc;
-	if (actualArgc < argc) {
-		argc = actualArgc;
+	if (argc < actualArgc) {
+		actualArgc = argc;
 	}
 	argvPtr >>= 2;
-	for (var i = 0; i < argc; i++) {
+	var i = 0;
+	for (; i < actualArgc; i++) {
 		HEAPU32[argvPtr + i] = createValue(cbinfo.args[i]);
+	}
+	for (; i < argc; i++) {
+		HEAPU32[argvPtr + i] = undefinedHandle;
 	}
 	setValue(thisArgPtr, cbinfo.this);
 	HEAPU32[dataPtrPtr >> 2] = cbinfo.data;
