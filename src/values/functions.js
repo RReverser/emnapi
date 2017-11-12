@@ -7,6 +7,7 @@ import {
 	hasPendingException,
 	caughtException,
 	undefinedHandle,
+	readString,
 } from '../utils';
 
 export function napi_get_cb_info(
@@ -33,18 +34,24 @@ export function napi_get_cb_info(
 	for (; i < argc; i++) {
 		HEAPU32[argvPtr + i] = undefinedHandle;
 	}
-	setValue(thisArgPtr, cbinfo.this);
-	HEAPU32[dataPtrPtr >> 2] = cbinfo.data;
+	if (thisArgPtr !== 0) {
+		setValue(thisArgPtr, cbinfo.this);
+	}
+	if (dataPtrPtr !== 0) {
+		HEAPU32[dataPtrPtr >> 2] = cbinfo.data;
+	}
 	return Status.Ok();
 }
 
 const canSetName = Object.getOwnPropertyDescriptor(Function.prototype, 'name')
 	.configurable;
 
-export function napi_create_function(env, name, cb, data, result) {
+export function napi_create_function(env, namePtr, nameLen, cb, data, result) {
 	var func = wrapCallback(cb, data);
 	if (canSetName) {
-		Object.defineProperty(func, 'name', { value: UTF8ToString(name) });
+		Object.defineProperty(func, 'name', {
+			value: readString(namePtr, nameLen),
+		});
 	}
 	return setValue(result, func);
 }

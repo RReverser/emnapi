@@ -1,13 +1,18 @@
-import { setValue, handles } from '../utils';
+import { setValue, handles, readString } from '../utils';
 
 export function napi_create_string_utf8(env, str, length, result) {
-	return setValue(
-		result,
-		length === -1 ? UTF8ToString(str) : Pointer_stringify(str, length) // TODO
-	);
+	return setValue(result, readString(str, length));
 }
 
-export function napi_create_number(env, value, result) {
+export function napi_create_int32(env, value, result) {
+	return napi_create_double(env, value, result);
+}
+
+export function napi_create_uint32(env, value, result) {
+	return napi_create_double(env, value, result >>> 0);
+}
+
+export function napi_create_double(env, value, result) {
 	return setValue(result, value);
 }
 

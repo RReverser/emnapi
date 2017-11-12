@@ -8,7 +8,11 @@ module.exports = {
 	buildType: 'debug',
 
 	mustCall(fn = () => {}, expected = 1) {
-		mustCall(fn, expected);
+		return mustCall(fn, expected);
+	},
+
+	expectsError({ code, message }) {
+		return err => err.code === code && err.message === message;
 	},
 };
 

@@ -132,8 +132,12 @@ export function napi_define_properties(env, obj, propCount, props) {
 				? handles[valueHandle]
 				: wrapCallback(methodPtr, data);
 		} else {
-			descriptor.get = wrapCallback(getterPtr, data);
-			descriptor.set = wrapCallback(setterPtr, data);
+			if (getterPtr !== 0) {
+				descriptor.get = wrapCallback(getterPtr, data);
+			}
+			if (setterPtr !== 0) {
+				descriptor.set = wrapCallback(setterPtr, data);
+			}
 		}
 
 		try {

@@ -15,7 +15,6 @@
         "UTF8ToString": false,
         "Pointer_stringify": false,
         "FUNCTION_TABLE_iii": false,
-        "FUNCTION_TABLE_viiii": false,
         "global": false,
         "self": false,
         "Symbol": false,

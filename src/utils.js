@@ -149,3 +149,7 @@ export function wrapCallback(ptr, data) {
 		});
 	};
 }
+
+export function readString(ptr, length) {
+	return length === -1 ? UTF8ToString(ptr) : Pointer_stringify(ptr, length); // TODO;
+}

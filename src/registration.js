@@ -1,4 +1,4 @@
-import { Status, withNewScope, createValue } from './utils';
+import { withNewScope, createValue, handles } from './utils';
 
 function readModule(ptr) {
 	// typedef struct {
@@ -15,17 +15,23 @@ function readModule(ptr) {
 		version: HEAPU32[ptr++],
 		flags: HEAPU32[ptr++],
 		filename: UTF8ToString(HEAPU32[ptr++]),
-		registerFunc: FUNCTION_TABLE_viiii[HEAPU32[ptr++]],
+		registerFunc: FUNCTION_TABLE_iii[HEAPU32[ptr++]],
 		modname: UTF8ToString(HEAPU32[ptr++]),
 	};
 }
 
 export function napi_module_register(info) {
 	info = readModule(info);
-	var mod = typeof module !== 'undefined' ? module : { exports: {} };
-	withNewScope(function() {
-		(0, info.registerFunc)(0, createValue(mod.exports), createValue(mod), 0);
+	return withNewScope(function() {
+		let exports = typeof module !== 'undefined' ? module.exports : {};
+		let exportsHandle = createValue(exports);
+		let newExportsHandle = (0, info.registerFunc)(0, exportsHandle);
+		if (newExportsHandle !== 0 && newExportsHandle !== exportsHandle) {
+			exports = handles[newExportsHandle];
+			if (typeof module !== 'undefined') {
+				module.exports = exports;
+			}
+		}
+		Module['napi'] = exports;
 	});
-	Module['napi'] = mod.exports;
-	return Status.Ok();
 }

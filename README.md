@@ -5,6 +5,7 @@ Currently implemented methods (not counting bugs):
 
  - [x] napi_module_register
  - [x] napi_get_last_error_info
+ - [ ] napi_fatal_error
  - [x] napi_get_undefined
  - [x] napi_get_null
  - [x] napi_get_global
@@ -12,7 +13,10 @@ Currently implemented methods (not counting bugs):
  - [x] napi_create_object
  - [x] napi_create_array
  - [x] napi_create_array_with_length
- - [x] napi_create_number
+ - [x] napi_create_double
+ - [x] napi_create_int32
+ - [x] napi_create_uint32
+ - [ ] napi_create_int64
  - [ ] napi_create_string_latin1
  - [x] napi_create_string_utf8
  - [ ] napi_create_string_utf16
@@ -39,12 +43,15 @@ Currently implemented methods (not counting bugs):
  - [x] napi_set_property
  - [x] napi_has_property
  - [x] napi_get_property
+ - [ ] napi_delete_property
+ - [ ] napi_has_own_property
  - [x] napi_set_named_property
  - [x] napi_has_named_property
  - [x] napi_get_named_property
  - [x] napi_set_element
  - [x] napi_has_element
  - [x] napi_get_element
+ - [ ] napi_delete_element
  - [x] napi_define_properties
  - [x] napi_is_array
  - [ ] napi_get_array_length
@@ -52,12 +59,12 @@ Currently implemented methods (not counting bugs):
  - [x] napi_call_function
  - [ ] napi_new_instance
  - [x] napi_instanceof
- - [ ] napi_make_callback
  - [x] napi_get_cb_info
- - [ ] napi_is_construct_call
+ - [ ] napi_get_new_target
  - [ ] napi_define_class
  - [ ] napi_wrap
  - [ ] napi_unwrap
+ - [ ] napi_remove_wrap
  - [ ] napi_create_external
  - [ ] napi_get_value_external
  - [ ] napi_create_reference
@@ -89,9 +96,21 @@ Currently implemented methods (not counting bugs):
  - [x] napi_is_typedarray
  - [ ] napi_create_typedarray
  - [ ] napi_get_typedarray_info
+ - [ ] napi_create_dataview
+ - [ ] napi_is_dataview
+ - [ ] napi_get_dataview_info
  - [ ] napi_create_async_work
  - [ ] napi_delete_async_work
  - [ ] napi_queue_async_work
  - [ ] napi_cancel_async_work
+ - [ ] napi_async_init
+ - [ ] napi_async_destroy
+ - [ ] napi_make_callback
  - [ ] napi_get_version
-
+ - [ ] napi_get_node_version
+ - [ ] napi_create_promise
+ - [ ] napi_resolve_deferred
+ - [ ] napi_reject_deferred
+ - [ ] napi_is_promise
+ - [ ] napi_adjust_external_memory
+ - [ ] napi_run_script
