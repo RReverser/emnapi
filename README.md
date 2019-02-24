@@ -5,7 +5,6 @@ Currently implemented methods (not counting bugs):
 
  - [x] napi_module_register
  - [x] napi_get_last_error_info
- - [ ] napi_fatal_error
  - [x] napi_get_undefined
  - [x] napi_get_null
  - [x] napi_get_global
@@ -84,11 +83,6 @@ Currently implemented methods (not counting bugs):
  - [x] napi_is_error
  - [x] napi_is_exception_pending
  - [x] napi_get_and_clear_last_exception
- - [ ] napi_create_buffer
- - [ ] napi_create_external_buffer
- - [ ] napi_create_buffer_copy
- - [ ] napi_is_buffer
- - [ ] napi_get_buffer_info
  - [x] napi_is_arraybuffer
  - [ ] napi_create_arraybuffer
  - [ ] napi_create_external_arraybuffer
@@ -99,15 +93,7 @@ Currently implemented methods (not counting bugs):
  - [ ] napi_create_dataview
  - [ ] napi_is_dataview
  - [ ] napi_get_dataview_info
- - [ ] napi_create_async_work
- - [ ] napi_delete_async_work
- - [ ] napi_queue_async_work
- - [ ] napi_cancel_async_work
- - [ ] napi_async_init
- - [ ] napi_async_destroy
- - [ ] napi_make_callback
  - [ ] napi_get_version
- - [ ] napi_get_node_version
  - [ ] napi_create_promise
  - [ ] napi_resolve_deferred
  - [ ] napi_reject_deferred

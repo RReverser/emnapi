@@ -1,6 +1,6 @@
 'use strict';
 
-process.chdir(`${__dirname}/addons-napi`);
+process.chdir(`${__dirname}/js-native-api`);
 
 const tap = require('tap');
 const { promisify } = require('util');

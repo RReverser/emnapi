@@ -1,5 +1,5 @@
-#ifndef SRC_NODE_API_TYPES_H_
-#define SRC_NODE_API_TYPES_H_
+#ifndef SRC_JS_NATIVE_API_TYPES_H_
+#define SRC_JS_NATIVE_API_TYPES_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -10,15 +10,13 @@
 
 // JSVM API types are all opaque pointers for ABI stability
 // typedef undefined structs instead of void* for compile time type safety
-typedef struct napi_env__ *napi_env;
-typedef struct napi_value__ *napi_value;
-typedef struct napi_ref__ *napi_ref;
-typedef struct napi_handle_scope__ *napi_handle_scope;
-typedef struct napi_escapable_handle_scope__ *napi_escapable_handle_scope;
-typedef struct napi_callback_info__ *napi_callback_info;
-typedef struct napi_async_context__ *napi_async_context;
-typedef struct napi_async_work__ *napi_async_work;
-typedef struct napi_deferred__ *napi_deferred;
+typedef struct napi_env__* napi_env;
+typedef struct napi_value__* napi_value;
+typedef struct napi_ref__* napi_ref;
+typedef struct napi_handle_scope__* napi_handle_scope;
+typedef struct napi_escapable_handle_scope__* napi_escapable_handle_scope;
+typedef struct napi_callback_info__* napi_callback_info;
+typedef struct napi_deferred__* napi_deferred;
 
 typedef enum {
   napi_default = 0,
@@ -42,6 +40,7 @@ typedef enum {
   napi_object,
   napi_function,
   napi_external,
+  napi_bigint,
 } napi_valuetype;
 
 typedef enum {
@@ -54,6 +53,8 @@ typedef enum {
   napi_uint32_array,
   napi_float32_array,
   napi_float64_array,
+  napi_bigint64_array,
+  napi_biguint64_array,
 } napi_typedarray_type;
 
 typedef enum {
@@ -70,7 +71,11 @@ typedef enum {
   napi_pending_exception,
   napi_cancelled,
   napi_escape_called_twice,
-  napi_handle_scope_mismatch
+  napi_handle_scope_mismatch,
+  napi_callback_scope_mismatch,
+  napi_queue_full,
+  napi_closing,
+  napi_bigint_expected,
 } napi_status;
 
 typedef napi_value (*napi_callback)(napi_env env,
@@ -78,11 +83,6 @@ typedef napi_value (*napi_callback)(napi_env env,
 typedef void (*napi_finalize)(napi_env env,
                               void* finalize_data,
                               void* finalize_hint);
-typedef void (*napi_async_execute_callback)(napi_env env,
-                                            void* data);
-typedef void (*napi_async_complete_callback)(napi_env env,
-                                             napi_status status,
-                                             void* data);
 
 typedef struct {
   // One of utf8name or name should be NULL.
@@ -105,11 +105,4 @@ typedef struct {
   napi_status error_code;
 } napi_extended_error_info;
 
-typedef struct {
-  uint32_t major;
-  uint32_t minor;
-  uint32_t patch;
-  const char* release;
-} napi_node_version;
-
-#endif  // SRC_NODE_API_TYPES_H_
+#endif  // SRC_JS_NATIVE_API_TYPES_H_

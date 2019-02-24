@@ -59,4 +59,4 @@ typings/
 
 index.dist.js
 
-/test/addons-napi
+/test/js-native-api
