@@ -34,6 +34,8 @@ const emccParams = [
 
 (async () => {
 	let pQueue = new PQueue({ concurrency: 4, autoStart: false });
+	let total = 0;
+	let succeeded = 0;
 
 	for (let dir of await readDir('.')) {
 		if (dir.startsWith('.')) continue;
@@ -51,35 +53,37 @@ const emccParams = [
 		await mkdir(bindingDir, { recursive: true });
 
 		for (let target of gyp.targets) {
-			let myIndex = pQueue.size;
+			let myIndex = total++;
 
 			pQueue.add(async () => {
 				let sources = target.sources.map(name => `${dir}/${name}`);
 				let dest = `${bindingDir}/${target.target_name}.js`;
 
 				let shortCmd = `emcc ${sources.join(' ')} -o ${dest}`;
-				console.log(`[#${myIndex}] Running: ${shortCmd}`);
-				let status = await new Promise((resolve, reject) => {
+				console.log(`[#${myIndex} / ${total}] Running: ${shortCmd}`);
+				let status = await new Promise(resolve => {
 					let process = spawn(emcc, [...emccParams, ...sources, '-o', dest], {
 						stdio: ['ignore', 'inherit', 'inherit'],
 					});
-					process.once('error', reject);
-					process.once('exit', code =>
-						code === 0 ? resolve() : reject(new Error(`Exit code ${code}`))
-					);
-				}).then(() => 'OK', err => err.stack);
-				console.log(
-					`[#${myIndex}] [${pQueue.pending}/${
-						pQueue.size
-					}] Done: ${shortCmd} (${status})`
-				);
+					process.once('exit', code => {
+						if (code === 0) {
+							succeeded++;
+							resolve('OK');
+						} else {
+							resolve(`Exit code ${code}`);
+						}
+					});
+				});
+				console.log(`[#${myIndex} / ${total}] Done: ${shortCmd} (${status})`);
 			});
 		}
 	}
 
 	pQueue.start();
 
-	await pQueue.onEmpty;
+	await pQueue.onIdle();
+
+	console.log(`Successfully built ${succeeded} / ${total} targets.`);
 })().catch(err => {
 	console.error(err);
 	process.exit(1);
