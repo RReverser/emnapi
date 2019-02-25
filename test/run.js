@@ -10,50 +10,40 @@ const lstat = promisify(fs.lstat);
 const { fork } = require('child_process');
 
 (async () => {
-	let dirs = await readDir('.');
+	for (let dir of await readDir('.')) {
+		if (dir.startsWith('.')) continue;
+		if (!(await lstat(dir)).isDirectory()) continue;
 
-	let tests = [];
+		for (let filename of await readDir(dir)) {
+			if (/^test.*\.js$/.test(filename)) {
+				tap.test(
+					`${dir}/${filename}`,
+					() =>
+						new Promise((resolve, reject) => {
+							let child = fork(filename, {
+								cwd: dir,
+								stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+							});
 
-	await Promise.all(
-		dirs.map(async dir => {
-			if (dir.startsWith('.')) return;
-			if (!(await lstat(dir)).isDirectory()) return;
+							child.on('message', stack => {
+								let err = new Error();
+								err.stack = stack;
+								reject(err);
+							});
 
-			for (let filename of await readDir(dir)) {
-				if (/^test.*\.js$/.test(filename)) {
-					tests.push({ dir, filename });
-				}
+							child.once('error', reject);
+
+							child.once('exit', code => {
+								if (code === 0) {
+									resolve();
+								} else {
+									reject(new Error(`Exit code ${code}`));
+								}
+							});
+						})
+				);
 			}
-		})
-	);
-
-	for (let test of tests) {
-		tap.test(
-			`${test.dir}/${test.filename}`,
-			() =>
-				new Promise((resolve, reject) => {
-					let child = fork(test.filename, {
-						cwd: test.dir,
-						stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
-					});
-
-					child.on('message', stack => {
-						let err = new Error();
-						err.stack = stack;
-						reject(err);
-					});
-
-					child.once('error', reject);
-
-					child.once('exit', code => {
-						if (code === 0) {
-							resolve();
-						} else {
-							reject(new Error('Unknown failure'));
-						}
-					});
-				})
-		);
+		}
 	}
 })().catch(err => {
 	console.error(err);
