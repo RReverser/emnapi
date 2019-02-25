@@ -61,7 +61,7 @@ const emccParams = [
 				console.log(`[#${myIndex} / ${total}] Running: ${shortCmd}`);
 				let status = await new Promise(resolve => {
 					let process = spawn(emcc, [...emccParams, ...sources, '-o', dest], {
-						stdio: ['ignore', 'inherit', 'inherit'],
+						stdio: 'inherit',
 					});
 					process.once('exit', code => {
 						if (code === 0) {
