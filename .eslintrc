@@ -13,8 +13,6 @@
         "HEAPU32": false,
         "HEAPF64": false,
         "UTF8ToString": false,
-        "Pointer_stringify": false,
-        "FUNCTION_TABLE_iii": false,
         "global": false,
         "self": false,
         "Symbol": false,

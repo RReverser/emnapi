@@ -19,8 +19,6 @@ const emccParams = [
 	'-I',
 	__dirname,
 	'-O2',
-	'--memory-init-file',
-	'0',
 	'-g4',
 	'-s',
 	'DEMANGLE_SUPPORT=1',
@@ -29,7 +27,7 @@ const emccParams = [
 	'-s',
 	'SAFE_HEAP=1',
 	'-s',
-	'ALIASING_FUNCTION_POINTERS=0',
+	'BINARYEN_ASYNC_COMPILATION=0',
 ];
 
 (async () => {

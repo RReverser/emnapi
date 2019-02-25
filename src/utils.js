@@ -33,18 +33,17 @@ typedef struct {
 export var ExtendedErrorInfo = Object.keys(StatusMsgs).map(function(key, i) {
 	/* eslint-disable no-undef */
 	// allocate space
-	var ptr = allocate(16, 'i8', ALLOC_STATIC);
+	var ptr = allocate(16, 'i8', ALLOC_DYNAMIC);
 	if (i > 0) {
 		var msg = StatusMsgs[key];
-		HEAPU32[ptr >> 2] = allocate(intArrayFromString(msg), 'i8', ALLOC_STATIC);
+		HEAPU32[ptr >> 2] = allocate(intArrayFromString(msg), 'i8', ALLOC_DYNAMIC);
 	}
 	HEAPU32[(ptr >> 2) + 3] = i;
 	return ptr;
 });
 
-export var SENTINEL = typeof Symbol !== 'undefined'
-	? Symbol('napi.sentinel')
-	: { sentinel: true };
+export var SENTINEL =
+	typeof Symbol !== 'undefined' ? Symbol('napi.sentinel') : { sentinel: true };
 
 var pendingException = SENTINEL;
 
@@ -137,7 +136,6 @@ export function safeJS(result, toValue, callback /*, ...values*/) {
 }
 
 export function wrapCallback(ptr, data) {
-	var func = FUNCTION_TABLE_iii[ptr];
 	return function() {
 		var cbInfo = {
 			this: this,
@@ -145,11 +143,11 @@ export function wrapCallback(ptr, data) {
 			data: data,
 		};
 		return withNewScope(function() {
-			return handles[func(0, createValue(cbInfo))];
+			return handles[Module['dynCall_iii'](ptr, 0, createValue(cbInfo))];
 		});
 	};
 }
 
 export function readString(ptr, length) {
-	return length === -1 ? UTF8ToString(ptr) : Pointer_stringify(ptr, length); // TODO;
+	return length === -1 ? UTF8ToString(ptr) : UTF8ToString(ptr, length); // TODO;
 }
