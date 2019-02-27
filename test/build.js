@@ -38,6 +38,7 @@ const emccParams = [
 	for (let dir of await readDir('.')) {
 		if (dir.startsWith('.')) continue;
 		if (!(await lstat(dir)).isDirectory()) continue;
+		if (process.argv.length > 2 && !process.argv.includes(dir, 2)) continue;
 
 		let gypText = await readFile(`${dir}/binding.gyp`, 'utf-8');
 
