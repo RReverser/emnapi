@@ -1,6 +1,6 @@
 var StatusMsgs = {
 	Ok: '',
-	InvalidArgument: 'Invalid pointer passed as argument',
+	InvalidArgument: 'Invalid argument',
 	ObjectExpected: 'An object was expected',
 	StringExpected: 'A string was expected',
 	NameExpected: 'A string or symbol was expected',
@@ -11,6 +11,12 @@ var StatusMsgs = {
 	GenericFailure: 'Unknown failure',
 	PendingException: 'An exception is pending',
 	Cancelled: 'The async work item was cancelled',
+	EscapeCalledTwice: 'napi_escape_handle already called on scope',
+	HandleScopeMismatch: 'Invalid handle scope usage',
+	CallbackScopeMismatch: 'Invalid callback scope usage',
+	QueueFull: 'Thread-safe function queue is full',
+	Closing: 'Thread-safe function handle is closing',
+	BigintExpected: 'A bigint was expected',
 };
 
 export var lastError = 0;
@@ -149,5 +155,5 @@ export function wrapCallback(ptr, data) {
 }
 
 export function readString(ptr, length) {
-	return length === -1 ? UTF8ToString(ptr) : UTF8ToString(ptr, length); // TODO;
+	return length === -1 ? UTF8ToString(ptr) : UTF8ToString(ptr, length);
 }
