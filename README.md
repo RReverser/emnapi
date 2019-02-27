@@ -16,9 +16,9 @@ Currently implemented methods (not counting bugs):
  - [x] napi_create_int32
  - [x] napi_create_uint32
  - [ ] napi_create_int64
- - [ ] napi_create_string_latin1
+ - [x] napi_create_string_latin1
  - [x] napi_create_string_utf8
- - [ ] napi_create_string_utf16
+ - [x] napi_create_string_utf16
  - [x] napi_create_symbol
  - [x] napi_create_function
  - [x] napi_create_error
@@ -30,9 +30,9 @@ Currently implemented methods (not counting bugs):
  - [x] napi_get_value_uint32
  - [ ] napi_get_value_int64
  - [x] napi_get_value_bool
- - [ ] napi_get_value_string_latin1
- - [ ] napi_get_value_string_utf8
- - [ ] napi_get_value_string_utf16
+ - [x] napi_get_value_string_latin1
+ - [x] napi_get_value_string_utf8
+ - [x] napi_get_value_string_utf16
  - [x] napi_coerce_to_bool
  - [x] napi_coerce_to_number
  - [x] napi_coerce_to_object
