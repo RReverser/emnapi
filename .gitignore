@@ -60,3 +60,4 @@ typings/
 index.dist.js
 
 /test/js-native-api
+/package-lock.json
