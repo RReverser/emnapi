@@ -1,5 +1,5 @@
 # emnapi
-N-API implementation for Emscripten (work in progress)
+N-API implementation for Emscripten. This project is **abandoned**, please see [Toyo Li's emnapi](https://github.com/toyobayashi/emnapi) instead.
 
 Currently implemented methods (not counting bugs):
 
